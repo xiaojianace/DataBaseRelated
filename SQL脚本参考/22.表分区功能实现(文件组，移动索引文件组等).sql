@@ -1,0 +1,31 @@
+/*
+  功能说明:	表分区功能实现
+  修改说明:Created BY LY 2012-6-15
+  备注说明:   如果表具有聚集索引，则将此聚集索引移动到新文件组的同时也会将表移动到该文件组。
+				 ALTER TABLE SG_GATHERING DROP CONSTRAINT PK_SG_GATHERING
+				  WITH (MOVE TO 'FG_PMCXD') 
+*/
+/*
+  功能说明:创建文件组
+  修改说明:Created BY LY 2012-6-15
+*/
+ALTER DATABASE grnpa ADD FILEGROUP FG_PMCXD
+ALTER DATABASE grnpa ADD FILE ( NAME = 'F_PMCXD',                                     FILENAME = 'D:\DB\DBTest\F_PMCXD.MDF', SIZE =5120KB ,                                           FILEGROWTH = 10% )  TO FILEGROUP FG_PMCXD ;
+/*
+  功能说明:表中的索引，主文件移动不同的文件组
+  修改说明:Created BY LY 2012-6-15
+*/
+ALTER TABLE MAKE
+  				DROP CONSTRAINT PK_MAKE
+ALTER TABLE MAKE WITH NOCHECK ADD CONSTRAINT 
+  					   PK_MAKE PRIMARY KEY NONCLUSTERED (SPMK) 
+  					   ON FG_PMCXD 
+ALTER TABLE PMCXD
+  				DROP CONSTRAINT PK_PMCXD
+ALTER TABLE PMCXD WITH NOCHECK ADD CONSTRAINT 
+  					   PK_PMCXD PRIMARY KEY NONCLUSTERED (DJBH) 
+  					   ON FG_PMCXD 
+DROP INDEX PMCXD.RQI
+CREATE NONCLUSTERED INDEX
+				RQI ON PMCXD(RQ,DJBH) 
+				ON FG_PMCXD 
